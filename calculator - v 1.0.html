@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Futurisztikus Számológép</title>
+    <!-- Futurisztikus betűtípus betöltése a Google Fonts-ról -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #090a0f;
+            --panel-bg: rgba(16, 18, 27, 0.85);
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff007f;
+            --neon-purple: #bc13fe;
+            --text-color: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Orbitron', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: var(--text-color);
+            overflow: hidden;
+        }
+
+        .calculator {
+            background: var(--panel-bg);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            box-shadow: 
+                0 0 20px rgba(0, 243, 255, 0.1),
+                inset 0 0 20px rgba(0, 243, 255, 0.05);
+            backdrop-filter: blur(10px);
+            width: 340px;
+        }
+
+        .display {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: right;
+            box-shadow: 
+                0 0 10px rgba(0, 243, 255, 0.2),
+                inset 0 0 10px rgba(0, 243, 255, 0.2);
+        }
+
+        .previous-operand {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            min-height: 18px;
+            letter-spacing: 2px;
+        }
+
+        .current-operand {
+            color: var(--neon-cyan);
+            font-size: 36px;
+            font-weight: 700;
+            text-shadow: 0 0 10px var(--neon-cyan);
+            letter-spacing: 3px;
+            word-wrap: break-word;
+            overflow: hidden;
+            max-height: 50px;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        button {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            font-size: 20px;
+            padding: 15px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Szám gombok neon hatása */
+        .btn-number {
+            border-color: rgba(0, 243, 255, 0.3);
+        }
+        .btn-number:hover, .btn-number.active {
+            background: rgba(0, 243, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+            text-shadow: 0 0 8px var(--neon-cyan);
+            transform: scale(0.95);
+        }
+
+        /* Műveleti gombok neon hatása (Rózsaszín) */
+        .btn-operator {
+            border-color: rgba(255, 0, 127, 0.4);
+            color: var(--neon-pink);
+            text-shadow: 0 0 5px var(--neon-pink);
+        }
+        .btn-operator:hover, .btn-operator.active {
+            background: rgba(255, 0, 127, 0.1);
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.5);
+            text-shadow: 0 0 10px var(--neon-pink);
+            transform: scale(0.95);
+        }
+
+        /* Egyenlőség gomb (Lila) */
+        .btn-equals {
+            grid-column: span 2;
+            border-color: rgba(188, 19, 254, 0.5);
+            background: rgba(188, 19, 254, 0.15);
+            color: var(--neon-purple);
+            text-shadow: 0 0 5px var(--neon-purple);
+        }
+        .btn-equals:hover, .btn-equals.active {
+            background: rgba(188, 19, 254, 0.3);
+            box-shadow: 0 0 20px rgba(188, 19, 254, 0.6);
+            text-shadow: 0 0 15px var(--neon-purple);
+            transform: scale(0.95);
+        }
+
+        /* Törlés gombok (Pirosas hatás) */
+        .btn-clear {
+            border-color: rgba(255, 80, 80, 0.4);
+            color: #ff5050;
+        }
+        .btn-clear:hover, .btn-clear.active {
+            background: rgba(255, 80, 80, 0.1);
+            box-shadow: 0 0 15px rgba(255, 80, 80, 0.5);
+            text-shadow: 0 0 10px #ff5050;
+            transform: scale(0.95);
+        }
+
+        /* Dekoratív fénycsík a gombokon klikkeléskor */
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s ease, height 0.2s ease;
+        }
+        button:active::after {
+            width: 100px;
+            height: 100px;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <div class="display">
+            <div class="previous-operand" id="previous-operand"></div>
+            <div class="current-operand" id="current-operand">0</div>
+        </div>
+        <div class="buttons">
+            <button class="btn-clear" onclick="clearAll()" data-key="Escape">C</button>
+            <button class="btn-clear" onclick="deleteNumber()" data-key="Backspace">DEL</button>
+            <button class="btn-operator" onclick="appendOperator('/')" data-key="/">/</button>
+            <button class="btn-operator" onclick="appendOperator('*')" data-key="*">*</button>
+            
+            <button class="btn-number" onclick="appendNumber('7')" data-key="7">7</button>
+            <button class="btn-number" onclick="appendNumber('8')" data-key="8">8</button>
+            <button class="btn-number" onclick="appendNumber('9')" data-key="9">9</button>
+            <button class="btn-operator" onclick="appendOperator('-')" data-key="-">-</button>
+            
+            <button class="btn-number" onclick="appendNumber('4')" data-key="4">4</button>
+            <button class="btn-number" onclick="appendNumber('5')" data-key="5">5</button>
+            <button class="btn-number" onclick="appendNumber('6')" data-key="6">6</button>
+            <button class="btn-operator" onclick="appendOperator('+')" data-key="+">+</button>
+            
+            <button class="btn-number" onclick="appendNumber('1')" data-key="1">1</button>
+            <button class="btn-number" onclick="appendNumber('2')" data-key="2">2</button>
+            <button class="btn-number" onclick="appendNumber('3')" data-key="3">3</button>
+            <button class="btn-number" onclick="appendNumber('.')" data-key=".">.</button>
+            
+            <button class="btn-number" style="grid-column: span 2;" onclick="appendNumber('0')" data-key="0">0</button>
+            <button class="btn-equals" onclick="calculate()" data-key="Enter">=</button>
+        </div>
+    </div>
+
+    <script>
+        let currentInput = '0';
+        let previousInput = '';
+        let operator = undefined;
+
+        const currentDisplay = document.getElementById('current-operand');
+        const previousDisplay = document.getElementById('previous-operand');
+
+        function updateDisplay() {
+            currentDisplay.innerText = currentInput;
+            if (operator != null) {
+                previousDisplay.innerText = `${previousInput} ${operator}`;
+            } else {
+                previousDisplay.innerText = '';
+            }
+        }
+
+        function appendNumber(number) {
+            if (number === '.' && currentInput.includes('.')) return;
+            if (currentInput === '0' && number !== '.') {
+                currentInput = number;
+            } else {
+                currentInput = currentInput.toString() + number.toString();
+            }
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            if (currentInput === '' && op === '-') {
+                currentInput = '-';
+                updateDisplay();
+                return;
+            }
+            if (currentInput === '' || currentInput === '-') return;
+            if (previousInput !== '') {
+                calculate();
+            }
+            operator = op;
+            previousInput = currentInput;
+            currentInput = '';
+            updateDisplay();
+        }
+
+        function calculate() {
+            let computation;
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+            if (isNaN(prev) || isNaN(current)) return;
+
+            switch (operator) {
+                case '+':
+                    computation = prev + current;
+                    break;
+                case '-':
+                    computation = prev - current;
+                    break;
+                case '*':
+                    computation = prev * current;
+                    break;
+                case '/':
+                    if (current === 0) {
+                        computation = "HIBA";
+                    } else {
+                        computation = prev / current;
+                    }
+                    break;
+                default:
+                    return;
+            }
+            
+            // Ha hiba van (osztás 0-val), ne formázza számmá
+            if (computation === "HIBA") {
+                currentInput = computation;
+            } else {
+                // Kerekítés, hogy elkerüljük a túl hosszú tizedeseket
+                currentInput = Math.round(computation * 100000000) / 100000000;
+                currentInput = currentInput.toString();
+            }
+            
+            operator = undefined;
+            previousInput = '';
+            updateDisplay();
+        }
+
+        function clearAll() {
+            currentInput = '0';
+            previousInput = '';
+            operator = undefined;
+            updateDisplay();
+        }
+
+        function deleteNumber() {
+            if (currentInput === "HIBA") {
+                clearAll();
+                return;
+            }
+            if (currentInput.length === 1 || (currentInput.length === 2 && currentInput.startsWith('-'))) {
+                currentInput = '0';
+            } else {
+                currentInput = currentInput.toString().slice(0, -1);
+            }
+            updateDisplay();
+        }
+
+        // Billentyűzet támogatás és vizuális visszajelzés (gombok felvillanása)
+        document.addEventListener('keydown', (event) => {
+            let key = event.key;
+            
+            // Numpad Enter átalakítása sima Enterré
+            if (key === 'Enter') key = 'Enter'; 
+
+            // Megkeressük a gombot a data-key attribútum alapján
+            const button = document.querySelector(`button[data-key="${key}"]`);
+            
+            if (button) {
+                event.preventDefault(); // Megakadályozza pl. a böngésző görgetését Space esetén
+                button.click(); // Végrehajtja a funkciót
+                
+                // Hozzáad egy 'active' class-t a felvillanáshoz
+                button.classList.add('active');
+                setTimeout(() => {
+                    button.classList.remove('active');
+                }, 100);
+            }
+        });
+    </script>
+</body>
+</html>
